@@ -1,0 +1,182 @@
+/* ==========================================
+   1. CONFIGURACIÓN BASE Y VARIABLES
+   ========================================== */
+:root {
+  --bg-fondo: #0f172a;
+  --bg-tarjeta: #1e293b;
+  --borde: #334155;
+  --texto-principal: #f8fafc;
+  --texto-secundario: #cbd5e1;
+  --acento-primario: #3b82f6;
+  --acento-primario-hover: #2563eb;
+  --acento-instalar: #10b981;
+  --acento-peligro: #ef4444;
+  --acento-peligro-hover: #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg-fondo);
+  color: var(--texto-principal);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================
+   2. ENCABEZADO Y BOTÓN DE INSTALACIÓN
+   ========================================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-tarjeta);
+  border-bottom: 1px solid var(--borde);
+}
+
+header h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+#btn-instalar {
+  background-color: var(--acento-instalar);
+  color: #064e3b;
+  font-weight: 700;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* ==========================================
+   3. CONTENEDOR PRINCIPAL Y ESTADO
+   ========================================== */
+main {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+#mensaje-estado {
+  background-color: var(--bg-tarjeta);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--acento-primario);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--texto-secundario);
+}
+
+/* ==========================================
+   4. TARJETA DE AVISO ÉTICO (#aviso-permiso)
+   ========================================== */
+#aviso-permiso {
+  background-color: var(--bg-tarjeta);
+  border: 1px solid var(--acento-primario);
+  border-radius: 0.75rem;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+#aviso-permiso p {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--texto-principal);
+}
+
+/* ==========================================
+   5. VISOR DE CÁMARA (#visor-camara)
+   ========================================== */
+section:has(#visor-camara) {
+  width: 100%;
+  background-color: #020617;
+  border: 1px solid var(--borde);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  max-height: 60dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#visor-camara {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==========================================
+   6. BOTONES Y CONTROLES DE HARDWARE
+   ========================================== */
+button {
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#btn-preparar-camara,
+#btn-confirmar-permiso {
+  background-color: var(--acento-primario);
+  color: #ffffff;
+  width: 100%;
+}
+
+#btn-preparar-camara:hover,
+#btn-confirmar-permiso:hover {
+  background-color: var(--acento-primario-hover);
+}
+
+/* Contenedor de botones Alternar y Apagar */
+section:has(#btn-alternar-camara) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+#btn-alternar-camara {
+  background-color: var(--bg-tarjeta);
+  color: var(--texto-principal);
+  border: 1px solid var(--borde);
+}
+
+#btn-apagar-camara {
+  background-color: var(--acento-peligro);
+  color: #ffffff;
+}
+
+#btn-apagar-camara:hover {
+  background-color: var(--acento-peligro-hover);
+}
+
+/* Garantiza que el atributo hidden de HTML siempre prevalezca sobre display: flex/grid */
+[hidden] {
+  display: none !important;
+}

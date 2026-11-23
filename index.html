@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Inspección Visual PWA</title>
+</head>
+<body>
+  <header>
+    <h1>Inspección Visual PWA</h1>
+    <button id="btn-instalar" hidden>Instalar App</button>
+  </header>
+
+  <main>
+    <!-- Indicador de estado de hardware y permisos -->
+    <p id="mensaje-estado" aria-live="polite">
+      Cámara apagada. Pulsa "Solicitar Acceso a Cámara" para comenzar.
+    </p>
+
+    <!-- Botón inicial para detonar el flujo ético -->
+    <button id="btn-preparar-camara">Solicitar Acceso a Cámara</button>
+
+    <!-- 2. Tarjeta de Aviso Ético oculta por defecto -->
+    <section id="aviso-permiso" hidden>
+      <p>
+        Esta aplicación requiere acceso a tu cámara únicamente para mostrar una vista previa local en pantalla. Ninguna imagen se envía a servidores externos.
+      </p>
+      <button id="btn-confirmar-permiso">Aceptar y Encender Cámara</button>
+    </section>
+
+    <!-- 1. Etiqueta <video> compatible con móviles -->
+    <section>
+      <video id="visor-camara" autoplay playsinline muted></video>
+    </section>
+
+    <!-- 3 y 4. Controles de alternancia y apagado de cámara -->
+    <section>
+      <button id="btn-alternar-camara">Cambiar Cámara</button>
+      <button id="btn-apagar-camara">Apagar Cámara</button>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
