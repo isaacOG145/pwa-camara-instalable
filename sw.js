@@ -1,6 +1,7 @@
-const NOMBRE_CACHE = 'inspeccion-pwa-v1';
+const CACHE_STATIC = 'app-static';
+const CACHE_DYNAMIC = 'app-dynamic';
 
-const ARCHIVOS_PRECACHE = [
+const ARCHIVOS_ESTATICOS = [
   './',
   './index.html',
   './styles.css',
@@ -10,32 +11,34 @@ const ARCHIVOS_PRECACHE = [
   './icons/icon-512.png'
 ];
 
-// Fase de instalación: precachear recursos estáticos
+// Fase de instalación: precachear el App Shell en CACHE_STATIC
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
-      .open(NOMBRE_CACHE)
-      .then((cache) => {
-        return cache.addAll(ARCHIVOS_PRECACHE);
+      .open(CACHE_STATIC)
+      .then((cacheStatic) => {
+        return cacheStatic.addAll(ARCHIVOS_ESTATICOS);
       })
       .then(() => {
         return self.skipWaiting();
       })
       .catch((error) => {
-        console.error('Fallo en el precacheo durante install:', error);
+        console.error('Error al precachear archivos estáticos:', error);
       })
   );
 });
 
-// Fase de activación: limpiar cachés antiguas si cambia la versión
+// Fase de activación: limpiar cachés antiguas distintas a las actuales
 self.addEventListener('activate', (event) => {
+  const cachesPermitidas = [CACHE_STATIC, CACHE_DYNAMIC];
+
   event.waitUntil(
     caches
       .keys()
       .then((nombresCaches) => {
         return Promise.all(
           nombresCaches.map((nombre) => {
-            if (nombre !== NOMBRE_CACHE) {
+            if (!cachesPermitidas.includes(nombre)) {
               return caches.delete(nombre);
             }
           })
@@ -47,19 +50,68 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fase fetch: estrategia Cache First
+// Enrutamiento dinámico de peticiones fetch
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches
-      .match(event.request)
-      .then((respuestaCacheada) => {
-        if (respuestaCacheada) {
-          return respuestaCacheada;
-        }
-        return fetch(event.request);
-      })
-      .catch((error) => {
-        console.error('Error al resolver la petición fetch:', error);
-      })
-  );
+  // Ignorar peticiones que no sean GET (como POST) o esquemas de extensiones
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  const esArchivoEstatico = ARCHIVOS_ESTATICOS.some((ruta) => {
+    const rutaLimpia = ruta.replace('./', '');
+    return rutaLimpia === '' ? url.pathname.endsWith('/') : url.pathname.endsWith(rutaLimpia);
+  });
+
+  if (esArchivoEstatico) {
+    event.respondWith(cacheFirst(event.request));
+  } else {
+    event.respondWith(netFirst(event.request));
+  }
 });
+
+// Estrategia 1: Cache First (para recursos estáticos / App Shell)
+function cacheFirst(request) {
+  return caches.match(request).then((respCache) => {
+    // Revisar si hay caché
+    if (respCache) {
+      return respCache;
+    }
+
+    return fetch(request).then((respNet) => {
+      return caches.open(CACHE_STATIC).then((cacheStatic) => {
+        cacheStatic.put(request, respNet.clone());
+        return respNet;
+      });
+    });
+  });
+}
+
+// Estrategia 2: Network First (para datos dinámicos o peticiones externas)
+function netFirst(request) {
+  return fetch(request)
+    .then((respnet) => {
+      return caches.open(CACHE_DYNAMIC).then((cacheDynamic) => {
+        cacheDynamic.put(request, respnet.clone());
+        return respnet;
+      });
+    })
+    .catch(() => {
+      return caches.match(request).then((resCache) => {
+        if (resCache) {
+          return resCache;
+        }
+        return new Response(
+          JSON.stringify({
+            error: 'No hay red ni cache disponible'
+          }),
+          {
+            status: 503,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      });
+    });
+}
